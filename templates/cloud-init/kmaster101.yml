@@ -1,0 +1,70 @@
+#cloud-config
+
+package_update: true
+package_upgrade: true
+
+hostname: kmaster101
+fqdn: kmaster101.littlemo.intra
+
+users:
+  - name: lperrier
+    gecos: Ludovic Perrier a.k.a. Timo
+    primary_group: lperrier
+    groups: users, admin
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    shell: /bin/bash
+    lock_passwd: true
+    ssh_authorized_keys:
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILq+SsfpNFO0ggrx4t09LDxAoEZY4e0Rlh/tymcejctw littlemo@littlemo.net
+
+  - name: ansible
+    gecos: Ansible
+    primary_group: ansible
+    groups: users, admin
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    shell: /bin/bash
+    lock_passwd: true
+    ssh_authorized_keys:
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK2PCvko8e88zFxBkYGHJ8g5PA3jM3QQlvXTugFzg/o4 ansible@littlemo.intra
+
+packages:
+  - apt-transport-https
+  - ca-certificates
+  - curl
+  - gnupg2
+  - software-properties-common
+  - lsb-release
+  - vim
+  - python3-pip
+
+runcmd:
+  # Prereq & kernel settings
+  - sudo swapoff -a
+  - sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+  - echo "overlay" | sudo tee /etc/modules-load.d/containerd.conf
+  - echo "br_netfilter" | sudo tee -a /etc/modules-load.d/containerd.conf
+  - sudo modprobe overlay
+  - sudo modprobe br_netfilter
+  - echo "net.bridge.bridge-nf-call-ip6tables = 1" | sudo tee /etc/sysctl.d/kubernetes.conf
+  - echo "net.bridge.bridge-nf-call-iptables = 1" | sudo tee -a /etc/sysctl.d/kubernetes.conf
+  - echo "net.ipv4.ip_forward = 1" | sudo tee -a /etc/sysctl.d/kubernetes.conf
+  - sudo sysctl --system
+
+  # Install containerd
+  - sudo mkdir -p /etc/apt/keyrings
+  - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+  - echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+  - sudo apt update -y
+  - sudo apt install -y containerd.io
+  - containerd config default | sudo tee /etc/containerd/config.toml >/dev/null 2>&1
+  - sudo sed -i 's/SystemdCgroup \= false/SystemdCgroup \= true/g' /etc/containerd/config.toml
+  - sudo systemctl restart containerd
+  - sudo systemctl enable containerd
+
+  # Install Kubernetes components
+  - sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+  - echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+  - sudo apt update -y
+  - sudo apt install -y kubelet kubeadm kubectl
+
+final_message: "The system is finally up, after $UPTIME seconds"

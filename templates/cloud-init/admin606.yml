@@ -1,0 +1,25 @@
+#cloud-config
+
+package_update: true
+package_upgrade: true
+
+hostname: admin606
+fqdn: admin606.littlemo.intra
+
+users:
+  - name: ludovic.perrier
+    gecos: Ludovic Perrier a.k.a. Timo
+    primary_group: ludovic.perrier
+    groups: users, admin
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    shell: /bin/bash
+    lock_passwd: true
+    ssh_authorized_keys:
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDrrFWHHHDEbyeKb4tcNPhPvH7adgKtssdrsePZTBNH0/UwkS2qU5wEzwz1TVOkGaqBSAy0J+s5Zso6CnDK0wA8u2tG5OeCMm6xDjcBVs7kvcv8D6Jaql0R6wofCi6HajI5g5EYHN3/5SqrvDeZ5zpmbSh/CkeUExIgR9tupP8zI0XgknS4u5Nj8oWdllrQgJ9eXxVme/pqbh9vkZEeYha+2FEM5tDS20rXI2/kQi+oYZxZpFLDkloQtUYwXXlEJ5qyio/L7Qiocui1RXS2iAS9DN1wpnMxkvxDqIQFVQ06JY5sVzoGhtCugAo+DfPuIh/p5MkVanUBcBXAMEPlZn3UOeI0fUB+HEs3V7MfU2Ah6n5htA3ebuG5vqMxNtmpaMOzhAZChJyn9Yf43Xe2mvznguj6CKFoK3dpH4YFHDrg1L8E9Jpj/ps7eX3kw9GE0gxSUmnA+MXjyyOe7uGxx2mCRbPEczzB5T5VaRXU99HEvS5BY+ik6/wEd1EKWdNfJA0= ludovic.perrier@sekhmet.local
+
+packages:
+  - python3-pip
+
+#runcmd:
+
+final_message: "The system is finally up, after $UPTIME seconds"
