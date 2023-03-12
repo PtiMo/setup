@@ -20,6 +20,4 @@ users:
 packages:
   - python3-pip
 
-#runcmd:
-
 final_message: "The system is finally up, after $UPTIME seconds"

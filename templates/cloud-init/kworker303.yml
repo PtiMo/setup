@@ -18,32 +18,6 @@ users:
       - ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAEJ7xSa579vesqCQYe82OKjzseuVDTem4BK4sz2PyQuw5clFXfjn5n3KyPkmk0s0Wzufxux778FfzvRqRAdHua6tABKzhhkJNm4zHDFi36VNaBP+7oSMIUa15nIN8O7N+3w/JNLNeUAcTHbeIipCOiWV3AKsjqkamq/OXnvsc4t0t4LEA== lperrier@kherty
 
 packages:
-  - apt-transport-https
-  - ca-certificates
-  - curl
-  - gnupg
-  - lsb-release
-
-runcmd:
-  # Install Docker
-  - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-  - echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-  - sudo apt update -y
-  - sudo apt install -y docker-ce docker-ce-cli containerd.io
-  - sudo systemctl start docker
-  - sudo systemctl enable docker
-
-  # Install Kubernetes components
-  - curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
-  - sudo apt-add-repository -y "deb http://apt.kubernetes.io/ kubernetes-xenial main"
-  - sudo apt update -y
-  - sudo apt install -y kubelet kubeadm kubectl
-
-  # Deactivate swap
-  - sudo swapoff -a
-
-  # Join Kubernetes Cluster
-  #- sudo kubeadm join 10.140.208.104:6443 --token ab6vtn.r51sembqnme17jlw --discovery-token-ca-cert-hash sha256:94e7508fe0ffab74c3fd1382c03d7e43a269251702995fb5323a1d9ac523285b 
-
+  - python3-pip
 
 final_message: "The system is finally up, after $UPTIME seconds"
